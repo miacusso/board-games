@@ -1,0 +1,53 @@
+.board {
+    color: #f00;
+}
+
+.column {
+    float: left;
+    border: #000 1px solid;
+    margin-right: -1px;
+}
+.column:hover {
+    background-color: #87ceeb;
+}
+
+.cell {
+    border: #000 1px solid;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 34px;
+    margin: 3px;
+    padding: 0;
+    text-align: center;
+}
+
+.red {
+    background-color: #f00;
+}
+
+.blue {
+    background-color: #00f;
+}
+
+.winner {
+    background-color: #0f0;
+}
+
+.game-status {
+    margin-bottom: 20px;
+}
+
+.score-table {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.score-table-title, .score-table-result {
+    width: 49%;
+    border: 1px solid #000;
+}
