@@ -34,7 +34,10 @@ class Grid extends React.Component {
         }
         const colNumber = (i/6) - 1;
         return (
-            <div key={colNumber} className="column" onClick={() => this.props.onClick(colNumber)}>{columns}</div>
+            <div key={colNumber} className="outside-column" onClick={() => this.props.onClick(colNumber)}>
+                <div className="invisible-row"><div className={"invisible-cell " + (this.props.redIsNext ? "red" : "blue")}></div></div>
+                <div className="inside-column">{columns}</div>
+            </div>
         );
     }
 
@@ -158,7 +161,7 @@ class FourInLine extends React.Component {
         return (
             <div className="game">
                 <div className="game-name">FOUR IN LINE</div>
-                <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} />
+                <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} redIsNext={this.state.redIsNext} />
                 <div className="game-info">
                     <div className="game-status">{status}</div>
                     <ScoreTable wins={this.state.wins} />

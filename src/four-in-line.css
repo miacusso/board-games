@@ -2,12 +2,16 @@
     color: #f00;
 }
 
-.column {
+.outside-column {
     float: left;
+}
+
+.inside-column {
+    background-color: #6495ed;
     border: #000 1px solid;
     margin-right: -1px;
 }
-.column:hover {
+.inside-column:hover {
     background-color: #87ceeb;
 }
 
@@ -17,12 +21,25 @@
     width: 34px;
     height: 34px;
     background: #fff;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 34px;
     margin: 3px;
-    padding: 0;
-    text-align: center;
+}
+
+.outside-column:hover .invisible-cell {
+    display: block;
+}
+
+.invisible-cell {
+    display: none;
+    border: #000 1px solid;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    background: #fff;
+    margin-left: 3px;
+}
+
+.invisible-row {
+    height: 40px;
 }
 
 .red {
