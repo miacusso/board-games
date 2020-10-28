@@ -2,19 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './four-in-line.css';
 
-class Cell extends React.Component {
-    render () {
-        let value = "";
-        if (this.props.value) {
-            if (this.props.value === "Red") {
-                value = "red";
-            } else {
-                value = "blue";
-            }
-        }
-        let winner = this.props.isWinner ? " winner" : "";
-        return (<div className={"cell " + value + winner}></div>);
-    }
+function Cell(props) {
+    let winner = props.isWinner ? " winner" : "";
+    let value = props.value ? props.value.name : "";
+    return (<div className={"cell " + value + winner}></div>);
 }
 
 function Restart(props) {
@@ -26,6 +17,7 @@ function Reset(props) {
 }
 
 class Grid extends React.Component {
+
     renderColumn(i) {
         let columns = [];
         for (let j = 0; j < 6; j++) {
@@ -35,7 +27,7 @@ class Grid extends React.Component {
         const colNumber = (i/6) - 1;
         return (
             <div key={colNumber} className="outside-column" onClick={() => this.props.onClick(colNumber)}>
-                <div className="invisible-row"><div className={"invisible-cell " + (this.props.redIsNext ? "red" : "blue")}></div></div>
+                <div className="invisible-row"><div className={"invisible-cell " + this.props.player.name}></div></div>
                 <div className="inside-column">{columns}</div>
             </div>
         );
@@ -56,6 +48,7 @@ class Grid extends React.Component {
 }
 
 class ScoreTable extends React.Component {
+    //FIXME: use data from server.
     render() {
         return (
             <div className="score-table">
@@ -79,7 +72,23 @@ class FourInLine extends React.Component {
         this.state = {
             cells: cells,
             stepNumber: 0,
-            redIsNext: true,
+
+            //FIXME: figure out how to avoid this default configuration. Use 'null' until the response from server arrives. See how to use a loader. Research promises.
+            //players: null,
+            players: [
+                {
+                    id: 3,
+                    name: "pepe",
+                    game: 2
+                },
+                {
+                    id: 4,
+                    name: "lala",
+                    game: 2
+                }
+            ],
+
+            //wins: null,
             wins: {
                 red: 0,
                 blue: 0,
@@ -87,7 +96,41 @@ class FourInLine extends React.Component {
         };
     }
 
-    handleRestart () {
+    player() {
+        return this.state.players[this.state.stepNumber % 2];
+    }
+
+    componentDidMount() {
+        //FIXME: move to generic function to be used by all the games
+        fetch('http://localhost:4567/2/result-table')
+            .then(response => response.json())
+            .then(wins => this.setState({wins: wins}))
+        ;
+
+        fetch('http://localhost:4567/2/players')
+            .then(response => response.json())
+            .then(players => this.setState({players: players}))
+        ;
+    }
+
+    registerWinner(player) {
+        //FIXME: move to generic function to be used by all the games
+        fetch(
+            'http://localhost:4567/2/winner',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Request-Header': 'Content-Type',
+                    'Access-Control-Request-Methods': 'POST'
+                },
+                body: JSON.stringify({winner: player}),
+            }
+        )
+            .then(console.log('POST response'));
+    }
+
+    handleRestart() {
         let cells = Array(42);
         for (let i = 0; i < 42; i++) {
             cells[i] = {value: null, isWinner: false};
@@ -95,7 +138,6 @@ class FourInLine extends React.Component {
         this.setState({
             cells: cells,
             stepNumber: 0,
-            redIsNext: true,
         });
     }
 
@@ -110,26 +152,19 @@ class FourInLine extends React.Component {
             offset++;
         }
         if (start+offset-1 >= start) {
-            cells[start+offset-1].value = this.state.redIsNext ? "Red" : "Blue";
+            cells[start+offset-1].value = this.player();
 
-            let wins = {
-                red: this.state.wins.red,
-                blue: this.state.wins.blue,
-            }
+            let wins = this.state.wins;
             const winner = calculateWinner(cells);
 
             if (winner) {
-                if (winner === "Red") {
-                    wins.red++;
-                } else {
-                    wins.blue++;
-                }
+                wins[winner.name]++;
+                this.registerWinner(winner);
             }
 
             this.setState({
                 cells: cells,
                 stepNumber: this.state.stepNumber + 1,
-                redIsNext: !this.state.redIsNext,
                 wins: wins,
             });
         }
@@ -140,6 +175,7 @@ class FourInLine extends React.Component {
             red: 0,
             blue: 0,
         }
+        //TODO: send reset to server.
         this.setState({
             wins: wins,
         });
@@ -149,10 +185,10 @@ class FourInLine extends React.Component {
         const winner = calculateWinner(this.state.cells);
         let status;
         if (winner) {
-            status = "Winner: " + winner;
+            status = "Winner: " + winner.name;
         } else {
             if (this.state.stepNumber < 42) {
-                status = 'Next player: ' + (this.state.redIsNext ? 'Red' : 'Blue');
+                status = 'Next player: ' + this.player().name;
             } else {
                 status = 'Empate';
             }
@@ -161,7 +197,7 @@ class FourInLine extends React.Component {
         return (
             <div className="game">
                 <div className="game-name">FOUR IN LINE</div>
-                <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} redIsNext={this.state.redIsNext} />
+                <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} player={this.player()} />
                 <div className="game-info">
                     <div className="game-status">{status}</div>
                     <ScoreTable wins={this.state.wins} />
