@@ -78,12 +78,12 @@ class FourInLine extends React.Component {
             players: [
                 {
                     id: 3,
-                    name: "pepe",
+                    name: "red",
                     game: 2
                 },
                 {
                     id: 4,
-                    name: "lala",
+                    name: "blue",
                     game: 2
                 }
             ],
@@ -130,6 +130,18 @@ class FourInLine extends React.Component {
             .then(console.log('POST response'));
     }
 
+    resetResults() {
+        fetch(
+            'http://localhost:4567/2/delete-result-table',
+            {
+                method: 'DELETE',
+                headers: {
+                    'Access-Control-Request-Methods': 'DELETE'
+                },
+            }
+        )
+    }
+
     handleRestart() {
         let cells = Array(42);
         for (let i = 0; i < 42; i++) {
@@ -171,11 +183,14 @@ class FourInLine extends React.Component {
     }
 
     handleReset() {
+
+        this.resetResults();
+
         const wins = {
             red: 0,
             blue: 0,
         }
-        //TODO: send reset to server.
+
         this.setState({
             wins: wins,
         });
