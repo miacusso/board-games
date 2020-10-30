@@ -96,7 +96,7 @@ class FourInLine extends React.Component {
         };
     }
 
-    player() {
+    nextPlayer() {
         return this.state.players[this.state.stepNumber % 2];
     }
 
@@ -164,7 +164,7 @@ class FourInLine extends React.Component {
             offset++;
         }
         if (start+offset-1 >= start) {
-            cells[start+offset-1].value = this.player();
+            cells[start+offset-1].value = this.nextPlayer();
 
             let wins = this.state.wins;
             const winner = calculateWinner(cells);
@@ -203,7 +203,7 @@ class FourInLine extends React.Component {
             status = "Winner: " + winner.name;
         } else {
             if (this.state.stepNumber < 42) {
-                status = 'Next player: ' + this.player().name;
+                status = 'Next player: ' + this.nextPlayer().name;
             } else {
                 status = 'Empate';
             }
@@ -212,7 +212,7 @@ class FourInLine extends React.Component {
         return (
             <div className="game">
                 <div className="game-name">FOUR IN LINE</div>
-                <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} player={this.player()} />
+                <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} player={this.nextPlayer()} />
                 <div className="game-info">
                     <div className="game-status">{status}</div>
                     <ScoreTable wins={this.state.wins} />

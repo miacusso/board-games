@@ -3,43 +3,44 @@ import ReactDOM from 'react-dom';
 import './tic-tac-toc.css';
 
 function Square(props) {
+    let winner = props.isWinner ? " winner" : "";
+    let value = props.value ? props.value.name : "";
     return (
         <button
-            className={props.isWinner ? "square winner" : "square"}
+            className={"square " + winner}
             onClick={props.onClick}
         >
-          {props.value}
+          {value.toUpperCase()}
         </button>
     );
 }
 
 function Restart(props) {
-    return (<button onClick={props.onClick}>Restart</button>);
+    return (<button onClick={props.onRestart}>Restart</button>);
 }
 
 class Board extends React.Component {
 
-    renderSquare(i) {
+    renderSquare(squareId) {
       return (
         <Square
-            key={i}
-            value={this.props.squares[i].value}
-            isWinner={this.props.squares[i].isWinner}
-            onClick={() => this.props.onClick(i)}
+            key={squareId}
+            value={this.props.squares[squareId].value}
+            isWinner={this.props.squares[squareId].isWinner}
+            onClick={() => this.props.onClick(squareId)}
         />
       );
     }
 
-    //-- start new code
-    renderRow(i) {
+    renderRow(rowIndex) {
         let row = [];
         for (let j = 0; j < 3; j++) {
-            row.push(this.renderSquare(i));
-            i++;
+            row.push(this.renderSquare(rowIndex));
+            rowIndex++;
         }
 
         return (
-            <div className="board-row" key={i}>
+            <div className="board-row" key={rowIndex}>
                 {row}
             </div>
         );
@@ -53,36 +54,10 @@ class Board extends React.Component {
         return (
             <div className="game-board">
                 {board}
-                <div className="reset"><Restart onClick={() => this.props.onRestart()} /></div>
+                <div className="reset"><Restart onRestart={() => this.props.onRestart()} /></div>
             </div>
         );
     }
-    //-- end new code
-
-    /*
-    render() {
-        return (
-            <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
-                <div className="reset"><Restart onClick={() => this.props.onRestart()} /></div>
-            </div>
-        );
-    }
-    */
 }
 
 class TicTacToe extends React.Component {
@@ -101,11 +76,45 @@ class TicTacToe extends React.Component {
                 },
             }],
             stepNumber: 0,
-            xIsNext: true,
+
+            //FIXME: figure out how to avoid this default configuration. Use 'null' until the response from server arrives. See how to use a loader. Research promises.
+            //players: null,
+            players: [
+                {
+                    id: 1,
+                    name: 'X',
+                    game: 1
+                },
+                {
+                    id: 2,
+                    name: 'O',
+                    game: 1
+                }
+            ],
         };
     }
 
-    initialize() {
+    nextPlayer() {
+        return this.state.players[this.state.stepNumber % 2];
+    }
+
+    componentDidMount() {
+        //FIXME: move to generic function to be used by all the games
+        fetch('http://localhost:4567/1/players')
+            .then(response => response.json())
+            .then(players => this.setState({players: players}))
+        ;
+    }
+
+    registerWinner(player) {
+
+    }
+
+    resetResults() {
+
+    }
+
+    handleRestart() {
         let squares = Array(9);
         for (let i = 0; i < 9; i++) {
             squares[i] = {value: null, isWinner: false};
@@ -119,33 +128,30 @@ class TicTacToe extends React.Component {
                 },
             }],
             stepNumber: 0,
-            xIsNext: true,
         });
     }
 
-    handleClick(i) {
+    handleClick(squareId) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length -1];
         const squares = JSON.parse(JSON.stringify(current.squares)); //current.squares.slice();
-        if (calculateWinner(squares) || squares[i].value) {
+        if (calculateWinner(squares) || squares[squareId].value) {
             return ;
         }
-        squares[i].value = this.state.xIsNext ? 'X' : 'O';
+        squares[squareId].value = this.nextPlayer();
 
         this.setState({
             history: history.concat([{
                 squares:squares,
-                position: convertSquareToColRow(i),
+                position: convertSquareToColRow(squareId),
             }]),
             stepNumber: history.length,
-            xIsNext: !this.state.xIsNext,
         });
     }
 
     jumpTo(step) {
         this.setState({
             stepNumber: step,
-            xIsNext: (step % 2) === 0,
         });
     }
 
@@ -168,10 +174,10 @@ class TicTacToe extends React.Component {
 
         let status;
         if (winner) {
-            status = 'Winner: ' + winner;
+            status = 'Winner: ' + winner.name.toUpperCase();
         } else {
             if (this.state.stepNumber < 9) {
-                status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+                status = 'Next player: ' + this.nextPlayer().name.toUpperCase();
             } else {
                 status = 'Empate'
             }
@@ -183,7 +189,7 @@ class TicTacToe extends React.Component {
                 <Board
                     squares={current.squares}
                     onClick={(i) => this.handleClick(i)}
-                    onRestart={() => this.initialize()}
+                    onRestart={() => this.handleRestart()}
                 />
                 <div className="game-info">
                     <div>{status}</div>
@@ -211,11 +217,13 @@ function calculateWinner(squares) {
     ];
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
-        if (squares[a].value && squares[a].value === squares[b].value && squares[a].value === squares[c].value) {
-            squares[a].isWinner = true;
-            squares[b].isWinner = true;
-            squares[c].isWinner = true;
-            return squares[a].value;
+        if (squares[a].value && squares[b].value && squares[c].value &&
+            squares[a].value.name === squares[b].value.name &&
+            squares[a].value.name === squares[c].value.name) {
+                squares[a].isWinner = true;
+                squares[b].isWinner = true;
+                squares[c].isWinner = true;
+                return squares[a].value;
         }
     }
     return null;
