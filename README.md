@@ -1,4 +1,4 @@
-This project is used as examples and practices of React technology
+This project is used as examples and practices of React technology.
 
 It implements several board games such as TIC-TAC-TOE and FOUR-IN-LINE.
 
@@ -11,6 +11,8 @@ Then run:
 `npm install`
 
 to install dependencies.
+
+It needs the [board-games-backend](https://github.com/miacusso/board-games-backend) project to run the server.
 
 It was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
