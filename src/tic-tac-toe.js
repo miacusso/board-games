@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './tic-tac-toc.css';
+import ScoreTable from './commons.js';
 
 function Square(props) {
     let winner = props.isWinner ? " winner" : "";
@@ -91,6 +92,12 @@ class TicTacToe extends React.Component {
                     game: 1
                 }
             ],
+
+            //wins: null,
+            wins: {
+                x: 0,
+                o: 0,
+            },
         };
     }
 
@@ -100,6 +107,11 @@ class TicTacToe extends React.Component {
 
     componentDidMount() {
         //FIXME: move to generic function to be used by all the games
+        fetch('http://localhost:4567/1/result-table')
+            .then(response => response.json())
+            .then(wins => this.setState({wins: wins}))
+        ;
+
         fetch('http://localhost:4567/1/players')
             .then(response => response.json())
             .then(players => this.setState({players: players}))
@@ -107,11 +119,32 @@ class TicTacToe extends React.Component {
     }
 
     registerWinner(player) {
-
+        //FIXME: move to generic function to be used by all the games
+        fetch(
+            'http://localhost:4567/1/winner',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Request-Header': 'Content-Type',
+                    'Access-Control-Request-Methods': 'POST'
+                },
+                body: JSON.stringify({winner: player}),
+            }
+        );
     }
 
     resetResults() {
-
+        //FIXME: move to generic function to be used by all the games
+        fetch(
+            'http://localhost:4567/1/delete-result-table',
+            {
+                method: 'DELETE',
+                headers: {
+                    'Access-Control-Request-Methods': 'DELETE'
+                },
+            }
+        );
     }
 
     handleRestart() {
@@ -140,18 +173,41 @@ class TicTacToe extends React.Component {
         }
         squares[squareId].value = this.nextPlayer();
 
+        let wins = this.state.wins;
+        const winner = calculateWinner(squares);
+
+        if (winner) {
+            wins[winner.name]++;
+            this.registerWinner(winner);
+        }
+
         this.setState({
             history: history.concat([{
                 squares:squares,
                 position: convertSquareToColRow(squareId),
             }]),
             stepNumber: history.length,
+            wins: wins,
         });
     }
 
     jumpTo(step) {
         this.setState({
             stepNumber: step,
+        });
+    }
+
+    handleReset() {
+
+        this.resetResults();
+
+        const wins = {
+            x: 0,
+            o: 0,
+        }
+
+        this.setState({
+            wins: wins,
         });
     }
 
@@ -192,7 +248,8 @@ class TicTacToe extends React.Component {
                     onRestart={() => this.handleRestart()}
                 />
                 <div className="game-info">
-                    <div>{status}</div>
+                    <div className="game-status">{status}</div>
+                    <ScoreTable players={this.state.players} wins={this.state.wins} onReset={() => this.handleReset()} />
                     <ol>{moves}</ol>
                 </div>
             </div>

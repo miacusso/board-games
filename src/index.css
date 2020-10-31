@@ -20,3 +20,21 @@ ol, ul {
    text-align: center;
    margin-bottom: 10px;
 }
+
+.score-table {
+    margin-bottom: 5px;
+}
+
+.score-table-row {
+    display: flex;
+}
+
+.score-table-title, .score-table-result {
+    width: 100%;
+    border: 1px solid #000;
+}
+
+.status, .reset {
+    margin-bottom: 10px;
+    text-align: center;
+  }
