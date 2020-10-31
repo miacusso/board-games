@@ -57,14 +57,3 @@
 .game-status {
     margin-bottom: 20px;
 }
-
-.score-table {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-.score-table-title, .score-table-result {
-    width: 49%;
-    border: 1px solid #000;
-}

@@ -4,11 +4,6 @@
   display: table;
 }
 
-.status, .reset {
-  margin-bottom: 10px;
-  text-align: center;
-}
-
 .square {
   background: #fff;
   border: 1px solid #999;

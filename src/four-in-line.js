@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './four-in-line.css';
+import ScoreTable from './commons.js';
 
 function Cell(props) {
     let winner = props.isWinner ? " winner" : "";
@@ -10,10 +11,6 @@ function Cell(props) {
 
 function Restart(props) {
     return (<button onClick={props.onRestart}>Restart</button>);
-}
-
-function Reset(props) {
-    return (<button onClick={props.onReset}>Reset</button>);
 }
 
 class Grid extends React.Component {
@@ -42,21 +39,6 @@ class Grid extends React.Component {
             <div className="game-board">
                 {grid}
                 <div className="reset"><Restart onRestart={() => this.props.onRestart()} /></div>
-            </div>
-        );
-    }
-}
-
-class ScoreTable extends React.Component {
-    //FIXME: use data from server.
-    render() {
-        return (
-            <div className="score-table">
-                <div>SCORE TABLE</div>
-                <div className="score-table-title">Red</div>
-                <div className="score-table-title">Blue</div>
-                <div className="score-table-result">{this.props.wins.red}</div>
-                <div className="score-table-result">{this.props.wins.blue}</div>
             </div>
         );
     }
@@ -126,8 +108,7 @@ class FourInLine extends React.Component {
                 },
                 body: JSON.stringify({winner: player}),
             }
-        )
-            .then(console.log('POST response'));
+        );
     }
 
     resetResults() {
@@ -139,7 +120,7 @@ class FourInLine extends React.Component {
                     'Access-Control-Request-Methods': 'DELETE'
                 },
             }
-        )
+        );
     }
 
     handleRestart() {
@@ -200,10 +181,10 @@ class FourInLine extends React.Component {
         const winner = calculateWinner(this.state.cells);
         let status;
         if (winner) {
-            status = "Winner: " + winner.name;
+            status = "Winner: " + capitalize(winner.name);
         } else {
             if (this.state.stepNumber < 42) {
-                status = 'Next player: ' + this.nextPlayer().name;
+                status = 'Next player: ' + capitalize(this.nextPlayer().name);
             } else {
                 status = 'Empate';
             }
@@ -215,8 +196,7 @@ class FourInLine extends React.Component {
                 <Grid onClick={(i) => this.handleClick(i)} onRestart={() => this.handleRestart()} cells={this.state.cells} player={this.nextPlayer()} />
                 <div className="game-info">
                     <div className="game-status">{status}</div>
-                    <ScoreTable wins={this.state.wins} />
-                    <div className="reset"><Reset onReset={() => this.handleReset()} /></div>
+                    <ScoreTable players={this.state.players} wins={this.state.wins} onReset={() => this.handleReset()} />
                 </div>
             </div>
         );
@@ -332,4 +312,8 @@ function calculateWinner(cells) {
         }
     }
     return null;
+}
+
+function capitalize(string) {
+    return string[0].toUpperCase() + string.slice(1);
 }
