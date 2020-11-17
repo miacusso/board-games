@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './tic-tac-toc.css';
 import ScoreTable from './commons.js';
+import ServerConnection from './server-connection.js';
 
 function Square(props) {
     let winner = props.isWinner ? " winner" : "";
@@ -106,45 +107,19 @@ class TicTacToe extends React.Component {
     }
 
     componentDidMount() {
-        //FIXME: move to generic function to be used by all the games
-        fetch('http://localhost:4567/1/result-table')
-            .then(response => response.json())
-            .then(wins => this.setState({wins: wins}))
-        ;
-
-        fetch('http://localhost:4567/1/players')
-            .then(response => response.json())
-            .then(players => this.setState({players: players}))
-        ;
+        let server = new ServerConnection(1);
+        server.getResultTable().then(wins => this.setState({wins: wins}));
+        server.getPlayers().then(players => this.setState({players: players}));
     }
 
     registerWinner(player) {
-        //FIXME: move to generic function to be used by all the games
-        fetch(
-            'http://localhost:4567/1/winner',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Request-Header': 'Content-Type',
-                    'Access-Control-Request-Methods': 'POST'
-                },
-                body: JSON.stringify({winner: player}),
-            }
-        );
+        let server = new ServerConnection(1);
+        server.registerWinner(player);
     }
 
     resetResults() {
-        //FIXME: move to generic function to be used by all the games
-        fetch(
-            'http://localhost:4567/1/delete-result-table',
-            {
-                method: 'DELETE',
-                headers: {
-                    'Access-Control-Request-Methods': 'DELETE'
-                },
-            }
-        );
+        let server = new ServerConnection(1);
+        server.resetResults();
     }
 
     handleRestart() {
