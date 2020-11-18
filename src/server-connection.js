@@ -2,7 +2,7 @@ var ServerConnection = class ServerConnection {
 
     constructor(game) {
         this.game = game;
-        this.host = "http://localhost:4567/";
+        this.host = process.env.REACT_APP_DATABASE_HOST;
     }
 
     getResultTable() {
