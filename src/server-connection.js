@@ -2,7 +2,7 @@ var ServerConnection = class ServerConnection {
 
     constructor(game) {
         this.game = game;
-        this.host = "http://localhost:4567/";
+        this.host = process.env.REACT_APP_DATABASE_HOST;
     }
 
     getResultTable() {
@@ -45,15 +45,7 @@ var ServerConnection = class ServerConnection {
 
     resetResults() {
         let url = this.host + this.game + "/delete-result-table";
-        fetch(
-            url,
-            {
-                method: 'DELETE',
-                headers: {
-                    'Access-Control-Request-Methods': 'DELETE'
-                },
-            }
-        );
+        fetch(url).then();
     }
 }
 

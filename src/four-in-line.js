@@ -38,7 +38,7 @@ class Grid extends React.Component {
         }
         return (
             <div className="game-board">
-                {grid}
+                <div className="game-grid">{grid}</div>
                 <div className="reset"><Restart onRestart={() => this.props.onRestart()} /></div>
             </div>
         );

@@ -84,12 +84,12 @@ class TicTacToe extends React.Component {
             players: [
                 {
                     id: 1,
-                    name: 'X',
+                    name: 'x',
                     game: 1
                 },
                 {
                     id: 2,
-                    name: 'O',
+                    name: 'o',
                     game: 1
                 }
             ],
