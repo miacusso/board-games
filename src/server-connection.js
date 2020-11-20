@@ -45,15 +45,7 @@ var ServerConnection = class ServerConnection {
 
     resetResults() {
         let url = this.host + this.game + "/delete-result-table";
-        fetch(
-            url,
-            {
-                method: 'DELETE',
-                headers: {
-                    'Access-Control-Request-Methods': 'DELETE'
-                },
-            }
-        );
+        fetch(url).then();
     }
 }
 
